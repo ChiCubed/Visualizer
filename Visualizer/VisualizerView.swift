@@ -27,7 +27,7 @@ var output: AKBooster! = nil
 var fft: AKFFTTap! = nil
 
 
-var stopped = false
+var stopped = true
 
 class VisualizerView: ScreenSaverView {
     var rects: [NSRect] = []
