@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		506DD98C1E7519CF000679BA /* AudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 506DD98B1E7519CF000679BA /* AudioKit.framework */; };
+		50954D611E75435B0037A84C /* AudioKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 506DD98B1E7519CF000679BA /* AudioKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		50B165DB1E75353A00D3C1AA /* AudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 506DD98B1E7519CF000679BA /* AudioKit.framework */; };
 		50B165DC1E75353A00D3C1AA /* AudioKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 506DD98B1E7519CF000679BA /* AudioKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		50D8B1EA1E47117900FBF664 /* VisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8B1E91E47117900FBF664 /* VisualizerView.swift */; };
@@ -18,6 +19,16 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		50954D601E7543540037A84C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				50954D611E75435B0037A84C /* AudioKit.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		50B165DD1E75353A00D3C1AA /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -131,6 +142,7 @@
 				50D8B1D71E4710F000FBF664 /* Frameworks */,
 				50D8B1D81E4710F000FBF664 /* Headers */,
 				50D8B1D91E4710F000FBF664 /* Resources */,
+				50954D601E7543540037A84C /* CopyFiles */,
 			);
 			buildRules = (
 			);

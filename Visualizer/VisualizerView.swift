@@ -21,15 +21,17 @@ let numBars = 100
 let outScale = 1.0
 let bufferLength = 100
 
+var input: AKMicrophone! = nil
+var mixer: AKMixer! = nil
+var output: AKBooster! = nil
+var fft: AKFFTTap! = nil
+
+
+var stopped = false
 
 class VisualizerView: ScreenSaverView {
     var rects: [NSRect] = []
-    let audioEngine = AVAudioEngine()
     
-    var input: AKMicrophone! = nil
-    var mixer: AKMixer! = nil
-    var output: AKBooster! = nil
-    var fft: AKFFTTap! = nil
     
     override init?(frame: NSRect, isPreview: Bool) {
         super.init(frame: frame, isPreview: isPreview)
@@ -38,21 +40,18 @@ class VisualizerView: ScreenSaverView {
         
         Swift.print(AudioKit.availableInputs!)
         
-        input = AKMicrophone()
-        do { try input.setDevice(AudioKit.availableInputs![0]) } catch {}
-        mixer = AKMixer(input)
-        output = AKBooster(mixer, gain:0)
+        if input == nil {
+            initAudioKit()
+        }
         
-        AudioKit.output = output
-        AudioKit.start()
-        
-        output.start()
-        
-        fft = AKFFTTap(mixer)
+        if stopped {
+            stopped = false
+            startAudioKit()
+        }
         
         self.animationTimeInterval = 1.0/30.0
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init?(coder:) not implemented")
     }
@@ -62,6 +61,22 @@ class VisualizerView: ScreenSaverView {
         for i in 1...numBars {
             rects.append(NSRect(x:CGFloat(i)*w,y:0,width:w,height:0))
         }
+    }
+    
+    func initAudioKit() {
+        input = AKMicrophone()
+        do { try input.setDevice(AudioKit.availableInputs![0]) } catch {}
+        mixer = AKMixer(input)
+        output = AKBooster(mixer, gain:0)
+        
+        AudioKit.output = output
+        
+        fft = AKFFTTap(mixer)
+    }
+    
+    func startAudioKit() {
+        AudioKit.start()
+        output.start()
     }
     
     override func setFrameSize(_ newSize: NSSize) {
@@ -74,6 +89,12 @@ class VisualizerView: ScreenSaverView {
     
     override func stopAnimation() {
         super.stopAnimation()
+        
+        if !stopped {
+            stopped = true
+            output.stop()
+            AudioKit.stop()
+        }
     }
     
     override func draw(_ rect: NSRect) {
@@ -86,9 +107,20 @@ class VisualizerView: ScreenSaverView {
         }
     }
     
+    func decibelScale(_ val: Double) -> Double {
+        return (pow(10.0, val/20.0)-1.0) * 10.0
+    }
+    
     override func animateOneFrame() {
+        if input == nil {
+            initAudioKit()
+        }
+        if stopped {
+            stopped = false
+            startAudioKit()
+        }
         for i in 0..<numBars {
-            rects[i].size.height = CGFloat(fft.fftData[i]*outScale)*self.frame.height
+            rects[i].size.height = min(CGFloat(decibelScale(fft.fftData[i])*outScale)*self.frame.height,self.frame.height/3)
         }
         self.needsDisplay = true
     }
