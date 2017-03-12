@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		506DD98C1E7519CF000679BA /* AudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 506DD98B1E7519CF000679BA /* AudioKit.framework */; };
+		50B165DB1E75353A00D3C1AA /* AudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 506DD98B1E7519CF000679BA /* AudioKit.framework */; };
+		50B165DC1E75353A00D3C1AA /* AudioKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 506DD98B1E7519CF000679BA /* AudioKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		50D8B1EA1E47117900FBF664 /* VisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8B1E91E47117900FBF664 /* VisualizerView.swift */; };
 		50D8B20A1E471F6F00FBF664 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8B2091E471F6F00FBF664 /* AppDelegate.swift */; };
 		50D8B20C1E471F6F00FBF664 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 50D8B20B1E471F6F00FBF664 /* Assets.xcassets */; };
@@ -14,7 +17,22 @@
 		50D8B2161E47206600FBF664 /* VisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8B1E91E47117900FBF664 /* VisualizerView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		50B165DD1E75353A00D3C1AA /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				50B165DC1E75353A00D3C1AA /* AudioKit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		506DD98B1E7519CF000679BA /* AudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AudioKit.framework; sourceTree = "<group>"; };
 		50D8B1DB1E4710F000FBF664 /* Visualizer.saver */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Visualizer.saver; sourceTree = BUILT_PRODUCTS_DIR; };
 		50D8B1E21E4710F000FBF664 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50D8B1E91E47117900FBF664 /* VisualizerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VisualizerView.swift; sourceTree = "<group>"; };
@@ -30,6 +48,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				506DD98C1E7519CF000679BA /* AudioKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -37,18 +56,28 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				50B165DB1E75353A00D3C1AA /* AudioKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		506DD98A1E7519CF000679BA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				506DD98B1E7519CF000679BA /* AudioKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		50D8B1D11E4710F000FBF664 = {
 			isa = PBXGroup;
 			children = (
 				50D8B1DD1E4710F000FBF664 /* Visualizer */,
 				50D8B2081E471F6F00FBF664 /* VisualizerTest */,
 				50D8B1DC1E4710F000FBF664 /* Products */,
+				506DD98A1E7519CF000679BA /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -119,6 +148,7 @@
 				50D8B2031E471F6F00FBF664 /* Sources */,
 				50D8B2041E471F6F00FBF664 /* Frameworks */,
 				50D8B2051E471F6F00FBF664 /* Resources */,
+				50B165DD1E75353A00D3C1AA /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -322,6 +352,11 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 27E42U7372;
+				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = Visualizer/Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Screen Savers";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -343,6 +378,11 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 27E42U7372;
+				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = Visualizer/Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Screen Savers";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -362,6 +402,10 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 27E42U7372;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = VisualizerTest/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
@@ -381,6 +425,10 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 27E42U7372;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = VisualizerTest/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
