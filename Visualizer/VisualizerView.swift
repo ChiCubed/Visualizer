@@ -72,6 +72,8 @@ class VisualizerView: ScreenSaverView {
         AudioKit.output = output
         
         fft = AKFFTTap(mixer)
+        
+        stopped = true
     }
     
     func startAudioKit() {
@@ -108,7 +110,7 @@ class VisualizerView: ScreenSaverView {
     }
     
     func decibelScale(_ val: Double) -> Double {
-        return (pow(10.0, val/20.0)-1.0) * 10.0
+        return (pow(10.0, val/20.0)-1.0) * 20.0
     }
     
     override func animateOneFrame() {
@@ -120,7 +122,7 @@ class VisualizerView: ScreenSaverView {
             startAudioKit()
         }
         for i in 0..<numBars {
-            rects[i].size.height = min(CGFloat(decibelScale(fft.fftData[i])*outScale)*self.frame.height,self.frame.height/3)
+            rects[i].size.height = min(CGFloat(decibelScale(fft.fftData[i])*outScale)*self.frame.height,self.frame.height)
         }
         self.needsDisplay = true
     }
