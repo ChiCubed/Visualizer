@@ -213,6 +213,8 @@ class VisualizerView: ScreenSaverView {
                                  y: rhsy - CGFloat(m) * prevRhsy)
             }
         }
+        
+        // https://github.com/Ramshandilya/Bezier/blob/master/Bezier/CubicCurveAlgorithm.swift
     }
     
     override func animateOneFrame() {
