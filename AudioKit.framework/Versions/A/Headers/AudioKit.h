@@ -3,7 +3,7 @@
 //  AudioKit
 //
 //  Created by Aurelius Prochazka, revision history on Github.
-//  Copyright © 2016 AudioKit. All rights reserved.
+//  Copyright © 2017 Aurelius Prochazka. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -21,9 +21,13 @@ FOUNDATION_EXPORT const unsigned char AudioKitVersionString[];
 // Analysis
 #import "AKAmplitudeTrackerAudioUnit.h"
 #import "AKFrequencyTrackerAudioUnit.h"
+#if !TARGET_OS_TV
+#import "AKMicrophoneTrackerEngine.h"
+#endif
 
 // Effects
 #import "AKOperationEffectAudioUnit.h"
+#import "AKSporthStack.h"
 
 // Effects / Delay
 #import "AKVariableDelayAudioUnit.h"
@@ -32,6 +36,9 @@ FOUNDATION_EXPORT const unsigned char AudioKitVersionString[];
 #import "AKBitCrusherAudioUnit.h"
 #import "AKClipperAudioUnit.h"
 #import "AKTanhDistortionAudioUnit.h"
+
+// Effects / Dynamics
+#import "AKDynamicRangeCompressorAudioUnit.h"
 
 // Effects / Envelopes
 #import "AKAmplitudeEnvelopeAudioUnit.h"
@@ -60,6 +67,9 @@ FOUNDATION_EXPORT const unsigned char AudioKitVersionString[];
 #import "AKToneComplementFilterAudioUnit.h"
 #import "AKToneFilterAudioUnit.h"
 
+// Effects / Phaser
+#import "AKPhaserAudioUnit.h"
+
 // Effects / Pitch Shifter
 #import "AKPitchShifterAudioUnit.h"
 
@@ -68,11 +78,13 @@ FOUNDATION_EXPORT const unsigned char AudioKitVersionString[];
 #import "AKConvolutionAudioUnit.h"
 #import "AKCostelloReverbAudioUnit.h"
 #import "AKFlatFrequencyResponseReverbAudioUnit.h"
+#import "AKZitaReverbAudioUnit.h"
 
 // Generators
 #import "AKOperationGeneratorAudioUnit.h"
 
 // Generators / Noise
+#import "AKBrownianNoiseAudioUnit.h"
 #import "AKPinkNoiseAudioUnit.h"
 #import "AKWhiteNoiseAudioUnit.h"
 
@@ -89,12 +101,16 @@ FOUNDATION_EXPORT const unsigned char AudioKitVersionString[];
 #import "AKPWMOscillatorBankAudioUnit.h"
 
 // Generators / Physical Models
+#import "AKClarinetAudioUnit.h"
 #import "AKDripAudioUnit.h"
 #import "AKFluteAudioUnit.h"
 #import "AKMandolinAudioUnit.h"
 #import "AKMetalBarAudioUnit.h"
 #import "AKPluckedStringAudioUnit.h"
-#import "AKClarinetAudioUnit.h"
+#import "AKRhodesPianoAudioUnit.h"
+#import "AKShakerAudioUnit.h"
+#import "AKTubularBellsAudioUnit.h"
+#import "AKVocalTractAudioUnit.h"
 
 // Mixing
 #import "AKBalancerAudioUnit.h"
@@ -104,6 +120,7 @@ FOUNDATION_EXPORT const unsigned char AudioKitVersionString[];
 
 // Playback
 #import "AKPhaseLockedVocoderAudioUnit.h"
+#import "AKSamplePlayerAudioUnit.h"
 
 // Testing
 #import "AKOfflineRenderer.h"

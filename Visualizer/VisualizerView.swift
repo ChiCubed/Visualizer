@@ -32,7 +32,7 @@ var currType = VisualizerType.line
 
 
 // For smooth curve through points
-struct ControlPoints {
+struct ControlPoint {
     let p1: CGPoint
     let p2: CGPoint
 }
@@ -58,8 +58,6 @@ class VisualizerView: ScreenSaverView {
         case .line:
             initLine()
         }
-        
-        Swift.print(AudioKit.availableInputs!)
         
         if input == nil {
             initAudioKit()
@@ -89,7 +87,7 @@ class VisualizerView: ScreenSaverView {
     
     func initAudioKit() {
         input = AKMicrophone()
-        do { try input.setDevice(AudioKit.availableInputs![0]) } catch {}
+        do { try input.setDevice(AudioKit.inputDevice!) } catch {}
         mixer = AKMixer(input)
         output = AKBooster(mixer, gain:0)
         
@@ -144,8 +142,9 @@ class VisualizerView: ScreenSaverView {
         return (pow(10.0, val/20.0)-1.0) * 20.0
     }
     
-    func calculateControlPoints(_ points: [NSPoint]) -> [ControlPoints] {
-        // https://github.com/Ramshandilya/Bezier/
+    func calculateControlPoints(_ points: [NSPoint]) -> [ControlPoint] {
+        // Thx
+        // https://github.com/Ramshandilya/Bezier/blob/master/Bezier/CubicCurveAlgorithm.swift
         
         var point1: [CGPoint?] = []
         var point2: [CGPoint?] = []
@@ -212,9 +211,58 @@ class VisualizerView: ScreenSaverView {
                 rhs[i] = CGPoint(x: rhsx - CGFloat(m) * prevRhsx,
                                  y: rhsy - CGFloat(m) * prevRhsy)
             }
+            
+            // first control points
+            
+            let lCpX = rhs[num-1].x/CGFloat(b[num-1])
+            let lCpY = rhs[num-1].y/CGFloat(b[num-1])
+            
+            point1[num-1] = CGPoint(x:lCpX, y:lCpY)
+            
+            for i in (0...num-2).reversed() {
+                if let nCp = point1[i+1] {
+                    let CpX = (rhs[i].x - CGFloat(c[i]) * nCp.x) / CGFloat(b[i])
+                    let CpY = (rhs[i].y - CGFloat(c[i]) * nCp.y) / CGFloat(b[i])
+                    
+                    point1[i] = CGPoint(x: CpX, y: CpY)
+                }
+            }
+            
+            // second control points
+            
+            for i in 0..<num {
+                if i == num-1 {
+                    let p3 = points[i+1]
+                    
+                    guard let p1 = point1[i] else { continue }
+                    
+                    let CpX = (p3.x + p1.x) / 2
+                    let CpY = (p3.y + p1.y) / 2
+                    
+                    point2.append(CGPoint(x:CpX, y:CpY))
+                } else {
+                    let p3 = points[i+1]
+                    
+                    guard let np1 = point1[i+1] else { continue }
+                    
+                    let CpX = 2*p3.x - np1.x
+                    let CpY = 2*p3.y - np1.y
+                    
+                    point2.append(CGPoint(x: CpX, y: CpY))
+                }
+            }
         }
         
-        // https://github.com/Ramshandilya/Bezier/blob/master/Bezier/CubicCurveAlgorithm.swift
+        var cPoints = [ControlPoint]()
+        
+        for i in 0..<num {
+            if let p1 = point1[i], let p2 = point2[i] {
+                let seg = ControlPoint(p1: p1, p2: p2)
+                cPoints.append(seg)
+            }
+        }
+        
+        return cPoints
     }
     
     override func animateOneFrame() {
