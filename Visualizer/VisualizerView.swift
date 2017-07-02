@@ -208,49 +208,8 @@ class VisualizerView: ScreenSaverView {
                 let m = a[i]/b[i-1]
                 b[i] -= m * c[i-1]
                 
-                rhs[i].x = rhsx - CGFloat(m) * prevRhsx
-                rhs[i].y = rhsy - CGFloat(m) * prevRhsy
-            }
-            
-            
-            let lastx = Double(rhs[num-1].x) / b[num-1]
-            let lasty = Double(rhs[num-1].y) / b[num-1]
-            
-            point1[num-1] = CGPoint(x: lastx, y: lasty)
-            
-            var i = num-2
-            while i >= 0 {
-                if let next=point1[i+1] {
-                    let cx = ((Double(rhs[i].x) - c[i]) * Double(next.x))/b[i]
-                    let cy = ((Double(rhs[i].y) - c[i]) * Double(next.y))/b[i]
-                    
-                    point1[i] = CGPoint(x: cx, y: cy)
-                }
-                i -= 1
-            }
-            
-            for i in 0..<num {
-                if i == num - 1{
-                    let P3 = points[i+1]
-                    
-                    guard let nextP1 = point1[i+1] else {
-                        continue
-                    }
-                    
-                    let cx = 2*P3.x - nextP1.x
-                    let cy = 2*P3.y - nextP1.y
-                    
-                    point2.append(CGPoint(x: cx, y: cy))
-                }
-            }
-        }
-        
-        var cp = [ControlPoints]()
-        
-        for i in 0..<num {
-            if let first = point1[i], let second = point2[i] {
-                let seg = ControlPoints(p1: first, p2: second)
-                cp.append(seg)
+                rhs[i] = CGPoint(x: rhsx - CGFloat(m) * prevRhsx,
+                                 y: rhsy - CGFloat(m) * prevRhsy)
             }
             
             // first control points
