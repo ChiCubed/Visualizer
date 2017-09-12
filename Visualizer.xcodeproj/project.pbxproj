@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		50CE2B321F08B15800959003 /* AudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50CE2B311F08B15800959003 /* AudioKit.framework */; };
 		50CE2B331F08B17900959003 /* AudioKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 50CE2B311F08B15800959003 /* AudioKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		50CE2B351F08BC0700959003 /* AudioKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 50CE2B311F08B15800959003 /* AudioKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		50D8B1EA1E47117900FBF664 /* VisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8B1E91E47117900FBF664 /* VisualizerView.swift */; };
 		50D8B20A1E471F6F00FBF664 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D8B2091E471F6F00FBF664 /* AppDelegate.swift */; };
 		50D8B20C1E471F6F00FBF664 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 50D8B20B1E471F6F00FBF664 /* Assets.xcassets */; };
@@ -19,7 +20,7 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		50954D601E7543540037A84C /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
@@ -33,6 +34,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				50CE2B351F08BC0700959003 /* AudioKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -177,7 +179,7 @@
 					Embedd,
 				);
 				LastSwiftUpdateCheck = 0820;
-				LastUpgradeCheck = 0820;
+				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = "Albert Smith";
 				TargetAttributes = {
 					50D8B1DA1E4710F000FBF664 = {
@@ -349,6 +351,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 			};
 			name = Release;
 		};

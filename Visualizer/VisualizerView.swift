@@ -6,16 +6,28 @@
 //  Copyright © 2017 Albert Smith. All rights reserved.
 //
 
+import Foundation
 import Cocoa
 import ScreenSaver
-import QuartzCore
 import AudioKit
+import OpenGL
 
+
+class NonOpaqueOpenGLView: NSOpenGLView {
+    override var isOpaque: Bool {
+        get {
+            return false
+        }
+        set {
+        }
+    }
+}
 
 
 
 let numBars = 50
 let outScale = 1.0
+let radiusScale: CGFloat = 0.3
 
 var input: AKMicrophone! = nil
 var mixer: AKMixer! = nil
@@ -23,45 +35,27 @@ var output: AKBooster! = nil
 var fft: AKFFTTap! = nil
 
 
-enum VisualizerType {
-    case bar, line
-}
-
-var currType = VisualizerType.line
-
-
-
-// For smooth curve through points
-struct ControlPoint {
-    let p1: CGPoint
-    let p2: CGPoint
-}
-
-
 var stopped = true
 
 class VisualizerView: ScreenSaverView {
-    var rects: [NSRect] = []
-    var line: NSBezierPath = NSBezierPath()
-    
-    var w: CGFloat! = nil
+    var lines: [GLfloat] = []
+    var VBO: GLuint = 0
+    var glView: NSOpenGLView!
     
     
     override init?(frame: NSRect, isPreview: Bool) {
         super.init(frame: frame, isPreview: isPreview)
         
-        w = self.frame.width/CGFloat(numBars+2)
+        glView = NonOpaqueOpenGLView(frame: NSZeroRect)
         
-        switch currType {
-        case .bar:
-            initRects()
-        case .line:
-            initLine()
-        }
+        self.addSubview(glView)
+        self.setupOpenGL()
         
         if input == nil {
             initAudioKit()
         }
+        
+        initLines(frameSize: self.frame)
         
         if stopped {
             stopped = false
@@ -74,15 +68,31 @@ class VisualizerView: ScreenSaverView {
     required init?(coder: NSCoder) {
         fatalError("init?(coder:) not implemented")
     }
-
-    func initRects() {
-        for i in 1...numBars {
-            rects.append(NSRect(x:CGFloat(i)*w,y:0,width:w,height:0))
-        }
+    
+    func setupOpenGL() {
+        glView.openGLContext!.makeCurrentContext()
+        
+        glGenBuffers(1, &VBO)
+        glBindBuffer(GLenum(GL_ARRAY_BUFFER), VBO)
+        glBufferData(GLenum(GL_ARRAY_BUFFER), MemoryLayout<GLfloat>.size*lines.count, lines, GLenum(GL_STREAM_DRAW))
+        
+        glClearColor(0.0, 0.0, 0.0, 0.0)
     }
     
-    func initLine() {
-        // nothing to see here
+    deinit {
+        glView.removeFromSuperview()
+        glDeleteBuffers(1, &VBO)
+    }
+
+    func initLines(frameSize: NSRect) {
+        var ratio: CGFloat = 1
+        if (frameSize.width != 0) {
+            ratio = frameSize.height / frameSize.width
+        }
+        for i in 0..<numBars {
+            let p = CGPoint(x: radiusScale * ratio * CGFloat(cos(i * Double.pi * 2.0 / numBars)), y: radiusScale * CGFloat(sin(i * Double.pi * 2.0 / numBars)))
+            lines += [GLfloat(p.x), GLfloat(p.y), GLfloat(p.x), GLfloat(p.y)]
+        }
     }
     
     func initAudioKit() {
@@ -105,6 +115,15 @@ class VisualizerView: ScreenSaverView {
     
     override func setFrameSize(_ newSize: NSSize) {
         super.setFrameSize(newSize)
+        
+        glView.openGLContext!.makeCurrentContext()
+        
+        glViewport(0, 0, GLsizei(newSize.width), GLsizei(newSize.height))
+        glView.setFrameSize(newSize)
+        
+        glView.openGLContext!.update()
+        
+        initLines(frameSize: NSRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
     }
     
     override func startAnimation() {
@@ -124,145 +143,25 @@ class VisualizerView: ScreenSaverView {
     override func draw(_ rect: NSRect) {
         super.draw(rect)
         
-        let context = NSGraphicsContext.current()
-        context!.cgContext.setFillColor(CGColor.white)
-        context!.cgContext.setStrokeColor(CGColor.white)
+        glView.openGLContext!.makeCurrentContext()
         
-        switch currType {
-        case .bar:
-            for rect in rects {
-                context!.cgContext.fill(rect)
-            }
-        case .line:
-            line.stroke()
-        }
+        // update buffers
+        glBindBuffer(UInt32(GL_ARRAY_BUFFER) as GLenum, VBO)
+        glBufferData(UInt32(GL_ARRAY_BUFFER) as GLenum, MemoryLayout<GLfloat>.size*lines.count, lines, GLenum(GL_STREAM_DRAW))
+        
+        glVertexAttribPointer(0, 2, GLenum(GL_FLOAT), GLboolean(false), GLsizei(MemoryLayout<GLfloat>.stride * 2), nil)
+        glEnableVertexAttribArray(0)
+        
+        glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
+        glLineWidth(10.0)
+        
+        glDrawArrays(GLenum(GL_LINES), 0, GLsizei(lines.count))
+        
+        glFlush()
     }
     
     func decibelScale(_ val: Double) -> Double {
-        return (pow(10.0, val/20.0)-1.0) * 20.0
-    }
-    
-    func calculateControlPoints(_ points: [NSPoint]) -> [ControlPoint] {
-        // Thx
-        // https://github.com/Ramshandilya/Bezier/blob/master/Bezier/CubicCurveAlgorithm.swift
-        
-        var point1: [CGPoint?] = []
-        var point2: [CGPoint?] = []
-        
-        let num = points.count-1
-        if num==1 {
-            point1.append(CGPoint(
-                x: (2*points[0].x + points[1].x)/3,
-                y: (2*points[0].y + points[1].y)/3))
-            point2.append(CGPoint(
-                x: (2*point1[0]!.x - points[0].x),
-                y: (2*point1[0]!.y - points[0].y)))
-        } else {
-            point1 = Array(repeating:nil, count:num)
-            
-            var rhs: [CGPoint] = []
-            
-            var a: [Double] = []
-            var b: [Double] = []
-            var c: [Double] = []
-            
-            for i in 0..<num {
-                var rhsx = CGFloat(0)
-                var rhsy = CGFloat(0)
-                
-                let p0 = points[i]
-                let p3 = points[i+1]
-                if i == 0 {
-                    a.append(0)
-                    b.append(2)
-                    c.append(1)
-                    
-                    rhsx = p0.x + 2*p3.x
-                    rhsy = p0.y + 2*p3.y
-                } else if i == num-1 {
-                    a.append(2)
-                    b.append(7)
-                    c.append(0)
-                    
-                    rhsx = 8*p0.x + p3.x
-                    rhsy = 8*p0.y + p3.y
-                } else {
-                    a.append(1)
-                    b.append(4)
-                    c.append(1)
-                    
-                    rhsx = 4*p0.x + 2*p3.x
-                    rhsy = 4*p0.y + 2*p3.y
-                }
-                
-                rhs.append(CGPoint(x:rhsx,y:rhsy))
-            }
-            
-            for i in 1...num {
-                let rhsx = rhs[i].x
-                let rhsy = rhs[i].y
-                
-                let prevRhsx = rhs[i-1].x
-                let prevRhsy = rhs[i-1].y
-                
-                let m = a[i]/b[i-1]
-                b[i] -= m * c[i-1]
-                
-                rhs[i] = CGPoint(x: rhsx - CGFloat(m) * prevRhsx,
-                                 y: rhsy - CGFloat(m) * prevRhsy)
-            }
-            
-            // first control points
-            
-            let lCpX = rhs[num-1].x/CGFloat(b[num-1])
-            let lCpY = rhs[num-1].y/CGFloat(b[num-1])
-            
-            point1[num-1] = CGPoint(x:lCpX, y:lCpY)
-            
-            for i in (0...num-2).reversed() {
-                if let nCp = point1[i+1] {
-                    let CpX = (rhs[i].x - CGFloat(c[i]) * nCp.x) / CGFloat(b[i])
-                    let CpY = (rhs[i].y - CGFloat(c[i]) * nCp.y) / CGFloat(b[i])
-                    
-                    point1[i] = CGPoint(x: CpX, y: CpY)
-                }
-            }
-            
-            // second control points
-            
-            for i in 0..<num {
-                if i == num-1 {
-                    let p3 = points[i+1]
-                    
-                    guard let p1 = point1[i] else { continue }
-                    
-                    let CpX = (p3.x + p1.x) / 2
-                    let CpY = (p3.y + p1.y) / 2
-                    
-                    point2.append(CGPoint(x:CpX, y:CpY))
-                } else {
-                    let p3 = points[i+1]
-                    
-                    guard let np1 = point1[i+1] else { continue }
-                    
-                    let CpX = 2*p3.x - np1.x
-                    let CpY = 2*p3.y - np1.y
-                    
-                    point2.append(CGPoint(x: CpX, y: CpY))
-                }
-            }
-        }
-        
-        var cPoints = [ControlPoint]()
-        
-        for i in 0..<num {
-            if let p1 = point1[i], let p2 = point2[i] {
-                let seg = ControlPoint(p1: p1, p2: p2)
-                cPoints.append(seg)
-            }
-        }
-        
-        return cPoints
+        return val*1.0//(pow(10.0, val/20.0)-1.0) * 20.0
     }
     
     override func animateOneFrame() {
@@ -274,32 +173,17 @@ class VisualizerView: ScreenSaverView {
             startAudioKit()
         }
         
-        switch currType {
-        case .bar:
-            for i in 0..<numBars {
-                let height = min(CGFloat(decibelScale(fft.fftData[i])*outScale)*self.frame.height,self.frame.height)
-                rects[i].size.height = height
-            }
-        case .line:
-            line = NSBezierPath()
-            
-            var points: [NSPoint] = []
-            for i in 1...numBars {
-                let height = min(CGFloat(decibelScale(fft.fftData[i])*outScale)*self.frame.height,self.frame.height)
-                points.append(NSPoint(x:CGFloat(i)*w,y:height))
-            }
-            
-            let controlPoints = calculateControlPoints(points)
-            for i in 0..<numBars {
-                if i == 0 {
-                    line.move(to: points[0])
-                } else {
-                    line.curve(to: points[i],
-                               controlPoint1: controlPoints[i-1].p1,
-                               controlPoint2: controlPoints[i-1].p2)
-                }
-            }
+        var ratio: CGFloat = 1
+        if (self.frame.width != 0) {
+            ratio = self.frame.height / self.frame.width
         }
+        for i in 0..<numBars {
+            let size = min(CGFloat(decibelScale(fft.fftData[i])*outScale),1.0)
+            let p = CGPoint(x: (radiusScale + size) * ratio * CGFloat(cos(i * Double.pi * 2.0 / numBars)), y: (radiusScale + size) * CGFloat(sin(i * Double.pi * 2.0 / numBars)))
+            lines[i*4 + 2] = GLfloat(p.x)
+            lines[i*4 + 3] = GLfloat(p.y)
+        }
+        
         self.needsDisplay = true
     }
     
